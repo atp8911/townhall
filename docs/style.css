@@ -1,0 +1,189 @@
+:root {
+    --bg: #f5f6f8;
+    --panel: #ffffff;
+    --border: #dfe3e8;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --primary: #2563eb;
+    --nueva: #2563eb;
+    --interesa: #059669;
+    --descartada: #9ca3af;
+    --aplicada: #7c3aed;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+header {
+    padding: 24px 32px 8px;
+}
+
+header h1 {
+    margin: 0 0 4px;
+    font-size: 1.5rem;
+}
+
+header p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+main {
+    padding: 16px 32px 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+}
+
+.toolbar label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 2px;
+}
+
+.toolbar select,
+.toolbar input {
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background: white;
+}
+
+.counts {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+    flex-wrap: wrap;
+}
+
+.chip {
+    font-size: 0.78rem;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #eef1f5;
+    color: var(--muted);
+}
+
+#status-msg {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin: 8px 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+thead th {
+    text-align: left;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--muted);
+    background: #f9fafb;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+}
+
+tbody td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+    vertical-align: top;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+tbody tr:hover {
+    background: #fafbfc;
+}
+
+td.titulo a {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+td.titulo a:hover {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+td.municipio {
+    white-space: nowrap;
+    color: var(--muted);
+}
+
+td.fecha {
+    white-space: nowrap;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+}
+
+select.estado-select {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+select.estado-nueva {
+    color: var(--nueva);
+    background: #eaf1fe;
+    border-color: #bfd7fb;
+}
+
+select.estado-me-interesa {
+    color: var(--interesa);
+    background: #e5f6ee;
+    border-color: #b7e5cf;
+}
+
+select.estado-descartada {
+    color: var(--descartada);
+    background: #f1f1f2;
+    border-color: #dcdde0;
+}
+
+select.estado-aplicada {
+    color: var(--aplicada);
+    background: #f0e9fd;
+    border-color: #d6c4f7;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 48px 16px;
+    color: var(--muted);
+}

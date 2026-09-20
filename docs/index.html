@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Convocatorias de empleo público — Baix Empordà / La Selva</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header>
+    <h1>Convocatorias de empleo público</h1>
+    <p>Sant Feliu de Guíxols · Baix Empordà · Santa Cristina d'Aro · Castell-Platja d'Aro · Calonge i Sant Antoni · Palamós · Llagostera · Vidreres</p>
+</header>
+<main>
+    <div class="toolbar">
+        <div>
+            <label for="filtro-municipio">Municipio</label>
+            <select id="filtro-municipio">
+                <option value="">Todos</option>
+            </select>
+        </div>
+        <div>
+            <label for="filtro-estado">Estado</label>
+            <select id="filtro-estado">
+                <option value="">Todos</option>
+                <option value="Nueva">Nueva</option>
+                <option value="Me interesa">Me interesa</option>
+                <option value="Descartada">Descartada</option>
+                <option value="Aplicada">Aplicada</option>
+            </select>
+        </div>
+        <div>
+            <label for="filtro-texto">Buscar</label>
+            <input id="filtro-texto" type="text" placeholder="Buscar en el título..." />
+        </div>
+        <div class="counts" id="counts"></div>
+    </div>
+
+    <p id="status-msg">Cargando...</p>
+
+    <table id="tabla" style="display:none">
+        <thead>
+            <tr>
+                <th>Municipio</th>
+                <th>Título</th>
+                <th>Publicado</th>
+                <th>Detectado</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-body"></tbody>
+    </table>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
