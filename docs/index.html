@@ -7,19 +7,23 @@
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<header>
-    <h1>Convocatorias de empleo público</h1>
-    <p>Sant Feliu de Guíxols · Baix Empordà · Santa Cristina d'Aro · Castell-Platja d'Aro · Calonge i Sant Antoni · Palamós · Llagostera · Vidreres</p>
-</header>
+
+<nav>
+    <a href="#" class="nav-brand">Townhall</a>
+    <span class="nav-sub">Sant Feliu de Guíxols · Baix Empordà · Santa Cristina d'Aro · Castell-Platja d'Aro · Calonge i Sant Antoni · Palamós · Llagostera · Vidreres</span>
+</nav>
+
 <main>
+    <h1>Convocatorias de empleo público</h1>
+
     <div class="toolbar">
-        <div>
+        <div class="form-group">
             <label for="filtro-municipio">Municipio</label>
             <select id="filtro-municipio">
                 <option value="">Todos</option>
             </select>
         </div>
-        <div>
+        <div class="form-group">
             <label for="filtro-estado">Estado</label>
             <select id="filtro-estado">
                 <option value="">Todos</option>
@@ -29,27 +33,32 @@
                 <option value="Aplicada">Aplicada</option>
             </select>
         </div>
-        <div>
+        <div class="form-group grow">
             <label for="filtro-texto">Buscar</label>
             <input id="filtro-texto" type="text" placeholder="Buscar en el título..." />
         </div>
-        <div class="counts" id="counts"></div>
     </div>
+
+    <div class="summary-bar" id="counts"></div>
 
     <p id="status-msg">Cargando...</p>
 
-    <table id="tabla" style="display:none">
-        <thead>
-            <tr>
-                <th>Municipio</th>
-                <th>Título</th>
-                <th>Publicado</th>
-                <th>Detectado</th>
-                <th>Estado</th>
-            </tr>
-        </thead>
-        <tbody id="tabla-body"></tbody>
-    </table>
+    <div class="card" id="tabla-card" style="padding:0; overflow:hidden; display:none">
+        <div class="table-wrap">
+            <table id="tabla">
+                <thead>
+                    <tr>
+                        <th>Municipio</th>
+                        <th>Título</th>
+                        <th class="sortable" data-sort="fecha_publicacion">Publicado <span class="sort-icon"></span></th>
+                        <th class="sortable" data-sort="fecha_detectada">Detectado <span class="sort-icon"></span></th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-body"></tbody>
+            </table>
+        </div>
+    </div>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

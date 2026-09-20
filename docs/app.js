@@ -23,21 +23,23 @@ function formatDate(value) {
 
     const supabase = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
 
-    const tabla = document.getElementById("tabla");
+    const tablaCard = document.getElementById("tabla-card");
     const tablaBody = document.getElementById("tabla-body");
     const filtroMunicipio = document.getElementById("filtro-municipio");
     const filtroEstado = document.getElementById("filtro-estado");
     const filtroTexto = document.getElementById("filtro-texto");
     const countsEl = document.getElementById("counts");
+    const sortableHeaders = document.querySelectorAll("th.sortable");
 
     let allRows = [];
+    let sortState = { field: "fecha_publicacion", ascending: false };
 
     async function loadData() {
         statusMsg.textContent = "Cargando...";
         const { data, error } = await supabase
             .from("convocatorias")
             .select("*")
-            .order("fecha_detectada", { ascending: false });
+            .order(sortState.field, { ascending: sortState.ascending });
 
         if (error) {
             statusMsg.textContent = "Error al cargar datos: " + error.message;
@@ -75,10 +77,11 @@ function formatDate(value) {
             return true;
         });
 
+        sortRows(filtered);
         renderCounts(filtered);
 
         if (filtered.length === 0) {
-            tabla.style.display = "none";
+            tablaCard.style.display = "none";
             statusMsg.textContent = allRows.length === 0
                 ? "Todavía no hay convocatorias guardadas. El scraper las irá añadiendo cada día."
                 : "No hay convocatorias que coincidan con los filtros.";
@@ -86,11 +89,31 @@ function formatDate(value) {
         }
 
         statusMsg.textContent = "";
-        tabla.style.display = "table";
+        tablaCard.style.display = "block";
         tablaBody.innerHTML = "";
 
         for (const row of filtered) {
             tablaBody.appendChild(renderRow(row));
+        }
+    }
+
+    function sortRows(rows) {
+        const { field, ascending } = sortState;
+        rows.sort((a, b) => {
+            const da = a[field] ? new Date(a[field]).getTime() : 0;
+            const db = b[field] ? new Date(b[field]).getTime() : 0;
+            return ascending ? da - db : db - da;
+        });
+    }
+
+    function updateSortHeaders() {
+        for (const th of sortableHeaders) {
+            const icon = th.querySelector(".sort-icon");
+            if (th.dataset.sort === sortState.field) {
+                icon.textContent = sortState.ascending ? "▲" : "▼";
+            } else {
+                icon.textContent = "";
+            }
         }
     }
 
@@ -101,10 +124,10 @@ function formatDate(value) {
 
         countsEl.innerHTML = "";
         for (const e of ESTADOS) {
-            const chip = document.createElement("span");
-            chip.className = "chip";
-            chip.textContent = `${e}: ${counts[e]}`;
-            countsEl.appendChild(chip);
+            const card = document.createElement("div");
+            card.className = "summary-card";
+            card.innerHTML = `<div class="label">${e}</div><div class="value">${counts[e]}</div>`;
+            countsEl.appendChild(card);
         }
     }
 
@@ -192,5 +215,19 @@ function formatDate(value) {
     filtroEstado.addEventListener("change", render);
     filtroTexto.addEventListener("input", render);
 
+    for (const th of sortableHeaders) {
+        th.addEventListener("click", () => {
+            const field = th.dataset.sort;
+            if (sortState.field === field) {
+                sortState.ascending = !sortState.ascending;
+            } else {
+                sortState = { field, ascending: false };
+            }
+            updateSortHeaders();
+            render();
+        });
+    }
+
+    updateSortHeaders();
     loadData();
 })();
