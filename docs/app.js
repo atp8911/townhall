@@ -1,4 +1,5 @@
 const ESTADOS = ["Nueva", "Me interesa", "Descartada", "Aplicada"];
+const FECHA_MINIMA_PUBLICACION = "2026-09-01";
 
 function estadoClass(estado) {
     return "estado-" + estado.toLowerCase().replace(/\s+/g, "-");
@@ -14,14 +15,55 @@ function formatDate(value) {
 (function main() {
     const cfg = window.TOWNHALL_CONFIG;
     const statusMsg = document.getElementById("status-msg");
+    const loginScreen = document.getElementById("login-screen");
+    const appEl = document.getElementById("app");
+    const loginForm = document.getElementById("login-form");
+    const loginEmail = document.getElementById("login-email");
+    const loginPassword = document.getElementById("login-password");
+    const loginError = document.getElementById("login-error");
+    const logoutBtn = document.getElementById("logout-btn");
 
     if (!cfg || !cfg.SUPABASE_URL || cfg.SUPABASE_URL.includes("xxxxxxxxxxxx")) {
+        appEl.style.display = "block";
         statusMsg.textContent =
             "Falta configurar docs/config.js con tu SUPABASE_URL y SUPABASE_ANON_KEY (copia config.example.js).";
         return;
     }
 
     const supabase = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
+
+    loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        loginError.textContent = "";
+        const submitBtn = loginForm.querySelector("button");
+        submitBtn.disabled = true;
+
+        const { error } = await supabase.auth.signInWithPassword({
+            email: loginEmail.value.trim(),
+            password: loginPassword.value,
+        });
+
+        submitBtn.disabled = false;
+        if (error) {
+            loginError.textContent = "Credenciales incorrectas o cuenta no autorizada.";
+        }
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+        await supabase.auth.signOut();
+    });
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+        if (session) {
+            loginScreen.style.display = "none";
+            appEl.style.display = "block";
+            loginForm.reset();
+            loadData();
+        } else {
+            appEl.style.display = "none";
+            loginScreen.style.display = "flex";
+        }
+    });
 
     const tabla = document.getElementById("tabla");
     const tablaBody = document.getElementById("tabla-body");
@@ -37,6 +79,7 @@ function formatDate(value) {
         const { data, error } = await supabase
             .from("convocatorias")
             .select("*")
+            .gte("fecha_publicacion", FECHA_MINIMA_PUBLICACION)
             .order("fecha_publicacion", { ascending: false });
 
         if (error) {
@@ -191,6 +234,4 @@ function formatDate(value) {
     filtroMunicipio.addEventListener("change", render);
     filtroEstado.addEventListener("change", render);
     filtroTexto.addEventListener("input", render);
-
-    loadData();
 })();

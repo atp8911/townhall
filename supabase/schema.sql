@@ -15,34 +15,36 @@ create table if not exists convocatorias (
 create index if not exists convocatorias_estado_idx on convocatorias (estado);
 create index if not exists convocatorias_fecha_detectada_idx on convocatorias (fecha_detectada desc);
 
--- Row Level Security: el dashboard estático usa la clave "anon" (pública),
--- así que solo permitimos lectura y actualización de estado desde el cliente.
--- El scraper usa la "service_role key" (secreta, solo en GitHub Actions),
--- que salta RLS por completo para poder insertar filas nuevas.
+-- Row Level Security: el dashboard estático exige iniciar sesión con
+-- Supabase Auth antes de poder leer o actualizar filas (ver README, sección
+-- "Restringir el acceso con login"). El scraper usa la "service_role key"
+-- (secreta, solo en GitHub Actions), que salta RLS por completo para poder
+-- insertar filas nuevas.
 alter table convocatorias enable row level security;
 
 drop policy if exists "Public read access" on convocatorias;
-create policy "Public read access"
+drop policy if exists "Authenticated read access" on convocatorias;
+create policy "Authenticated read access"
     on convocatorias for select
-    using (true);
+    using (auth.role() = 'authenticated');
 
 drop policy if exists "Public status update" on convocatorias;
-create policy "Public status update"
+drop policy if exists "Authenticated status update" on convocatorias;
+create policy "Authenticated status update"
     on convocatorias for update
-    using (true)
-    with check (true);
+    using (auth.role() = 'authenticated')
+    with check (auth.role() = 'authenticated');
 
 -- RLS por si sola no da acceso: Postgres primero comprueba el GRANT de la
 -- tabla y solo despues aplica las politicas RLS para filtrar filas. Sin estos
--- GRANT explicitos, el rol anon recibe "permission denied" aunque las
--- politicas de arriba digan "using (true)".
-grant usage on schema public to anon, service_role;
-grant select, update on convocatorias to anon;
+-- GRANT explicitos, el rol authenticated recibe "permission denied" aunque
+-- las politicas de arriba lo permitan.
+grant usage on schema public to authenticated, service_role;
+grant select, update on convocatorias to authenticated;
 grant select, insert, update, delete on convocatorias to service_role;
 
--- Nota de seguridad: como la clave anon queda embebida en el JS del dashboard
--- (es pública por diseño en apps estáticas sin backend), cualquiera con la URL
--- del dashboard podría leer y cambiar el estado de las convocatorias. No hay
--- política de INSERT/DELETE para anon, así que no pueden borrar ni crear filas.
--- Si en el futuro quieres cerrarlo del todo, añade Supabase Auth y cambia
--- "using (true)" por "using (auth.uid() is not null)".
+-- Nota de seguridad: la clave anon sigue embebida en el JS del dashboard (es
+-- pública por diseño), pero ya no basta por sí sola: sin una sesión de
+-- Supabase Auth válida, el rol efectivo es "anon" y las políticas de arriba
+-- lo bloquean. Solo entran quienes tengan una cuenta creada a mano por ti en
+-- Authentication -> Users (con el registro público desactivado).
