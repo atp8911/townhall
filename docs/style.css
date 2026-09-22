@@ -187,3 +187,91 @@ select.estado-aplicada {
     padding: 48px 16px;
     color: var(--muted);
 }
+
+#login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.login-box {
+    width: 100%;
+    max-width: 340px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.login-box h1 {
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+.login-box .muted {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin: 0 0 8px;
+}
+
+.login-box label {
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.login-box input {
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.login-box button {
+    margin-top: 8px;
+    padding: 9px;
+    border: none;
+    border-radius: 6px;
+    background: var(--primary);
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.login-box button:hover {
+    filter: brightness(1.05);
+}
+
+.login-error {
+    color: #dc2626;
+    font-size: 0.85rem;
+    margin: 0;
+    min-height: 1em;
+}
+
+header {
+    position: relative;
+}
+
+.logout-btn {
+    position: absolute;
+    top: 24px;
+    right: 32px;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--panel);
+    color: var(--muted);
+    font-size: 0.82rem;
+    cursor: pointer;
+}
+
+.logout-btn:hover {
+    color: var(--text);
+    border-color: #c7ccd3;
+}

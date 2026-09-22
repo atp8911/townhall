@@ -96,8 +96,22 @@ python scrape.py
 
 Imprime cuántos anuncios de RRHH revisó por municipio y cuántos eran nuevos.
 
+## Restringir el acceso con login
+
+El dashboard ahora exige iniciar sesión (Supabase Auth) antes de mostrar ninguna fila, y las políticas de `supabase/schema.sql` ya no aceptan al rol `anon`: solo a `authenticated`. Para activarlo en tu proyecto:
+
+1. **Vuelve a ejecutar `supabase/schema.sql`** en el SQL Editor de tu proyecto (sustituye las políticas antiguas por las nuevas basadas en `auth.role() = 'authenticated'`).
+2. **Desactiva el registro público**: en el panel de Supabase ve a **Authentication → Sign In / Providers → Email** y desactiva "Allow new users to sign up" (o "Enable email signups", según la versión del panel). Así nadie puede crearse una cuenta por su cuenta.
+3. **Crea a mano las cuentas de las personas que quieres que entren**: **Authentication → Users → Add user**, indicando email y contraseña (o "Invite" para que la persona la ponga ella misma). Repite por cada persona autorizada.
+4. Publica los cambios de `docs/` (commit + push a `main`); GitHub Pages los recogerá automáticamente.
+
+Con esto, aunque la URL del dashboard y la clave `anon` sigan siendo públicas (es inevitable en una app 100% estática sin backend), nadie puede leer ni modificar datos sin iniciar sesión con una cuenta que tú hayas creado explícitamente.
+
+**Limitación a tener en cuenta**: GitHub Pages sirve el HTML/CSS/JS a cualquiera que visite la URL — lo que queda protegido es el *acceso a los datos* (Supabase), no la carga de la página de login en sí, que cualquiera puede ver. Esto es aceptable para un panel personal; si en el futuro necesitas que ni siquiera se pueda ver el formulario de login, la alternativa sería mover el hosting a un servicio con autenticación a nivel de servidor (p. ej. Cloudflare Access delante de GitHub Pages, o Netlify/Vercel con protección de contraseña), lo cual añade infraestructura adicional.
+
 ## Notas y limitaciones conocidas
 
+- **Filtro por fecha de publicación**: el dashboard (`docs/app.js`, constante `FECHA_MINIMA_PUBLICACION`) solo muestra convocatorias con `fecha_publicacion >= 2026-09-01`. Las que no tengan `fecha_publicacion` (campo nulo) quedan fuera de ese filtro. Para cambiar la fecha de corte, edita esa constante.
 - **`LOOKBACK_DAYS`** (por defecto 60): en cada ejecución el scraper solo pagina hacia atrás hasta esa antigüedad en los taulers e-Tauler. Es suficiente para el uso diario normal; si quieres hacer un backfill inicial más profundo la primera vez, ejecuta manualmente con `LOOKBACK_DAYS=365` (o más) antes de dejar el cron con el valor por defecto.
 - **Santa Cristina d'Aro**: a fecha de esta investigación, su e-Tauler no tenía anuncios de RRHH publicados desde mediados de 2025 — no es un fallo del scraper, es el estado real de esa fuente. Si detectas que llevan tiempo sin novedades, vale la pena revisar a mano si han cambiado de plataforma.
 - **RLS abierta para `update`**: cualquiera con la URL del dashboard (y por tanto la anon key) puede cambiar el `estado` de cualquier fila, porque es una app personal sin login. No puede insertar ni borrar filas. Si más adelante quieres cerrarlo del todo, añade Supabase Auth y cambia las políticas de `schema.sql`.

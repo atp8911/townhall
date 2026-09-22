@@ -7,9 +7,24 @@
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+<div id="login-screen" style="display:none">
+    <form id="login-form" class="login-box">
+        <h1>Convocatorias de empleo público</h1>
+        <p class="muted">Acceso restringido. Inicia sesión para continuar.</p>
+        <label for="login-email">Email</label>
+        <input id="login-email" type="email" autocomplete="username" required />
+        <label for="login-password">Contraseña</label>
+        <input id="login-password" type="password" autocomplete="current-password" required />
+        <button type="submit">Entrar</button>
+        <p id="login-error" class="login-error"></p>
+    </form>
+</div>
+
+<div id="app" style="display:none">
 <header>
     <h1>Convocatorias de empleo público</h1>
     <p>Sant Feliu de Guíxols · Baix Empordà · Santa Cristina d'Aro · Castell-Platja d'Aro · Calonge i Sant Antoni · Palamós · Llagostera · Vidreres</p>
+    <button id="logout-btn" class="logout-btn">Cerrar sesión</button>
 </header>
 <main>
     <div class="toolbar">
@@ -51,6 +66,7 @@
         <tbody id="tabla-body"></tbody>
     </table>
 </main>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
