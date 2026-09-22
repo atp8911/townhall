@@ -37,7 +37,7 @@ function formatDate(value) {
         const { data, error } = await supabase
             .from("convocatorias")
             .select("*")
-            .order("fecha_detectada", { ascending: false });
+            .order("fecha_publicacion", { ascending: false });
 
         if (error) {
             statusMsg.textContent = "Error al cargar datos: " + error.message;
