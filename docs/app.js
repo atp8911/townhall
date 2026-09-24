@@ -1,6 +1,28 @@
 const ESTADOS = ["Nueva", "Me interesa", "Descartada", "Aplicada"];
 const FECHA_MINIMA_PUBLICACION = "2026-09-01";
 
+// Entes que vigila el scraper. Se listan a mano porque un ente cuya fuente se
+// haya roto no tiene ninguna fila en la tabla, y es justo el que hay que ver.
+const MUNICIPIOS = [
+    "Sant Feliu de Guíxols",
+    "Santa Cristina d'Aro",
+    "Castell-Platja d'Aro",
+    "Calonge i Sant Antoni",
+    "Palamós",
+    "Llagostera",
+    "Vidreres",
+    "Consell Comarcal del Baix Empordà",
+];
+
+const ALERTA_DIAS = 60;
+
+function diasDesde(fecha) {
+    if (!fecha) return null;
+    const d = new Date(fecha);
+    if (Number.isNaN(d.getTime())) return null;
+    return Math.floor((Date.now() - d.getTime()) / 86400000);
+}
+
 function estadoClass(estado) {
     return "estado-" + estado.toLowerCase().replace(/\s+/g, "-");
 }
@@ -71,6 +93,8 @@ function formatDate(value) {
     const filtroEstado = document.getElementById("filtro-estado");
     const filtroTexto = document.getElementById("filtro-texto");
     const countsEl = document.getElementById("counts");
+    const coberturaGrid = document.getElementById("cobertura-grid");
+    const coberturaResumen = document.getElementById("cobertura-resumen");
 
     let allRows = [];
 
@@ -91,6 +115,112 @@ function formatDate(value) {
         allRows = data || [];
         populateMunicipioFilter(allRows);
         render();
+        loadCobertura();
+    }
+
+    async function loadCobertura() {
+        // Consulta aparte y sin el filtro de FECHA_MINIMA_PUBLICACION: aqui
+        // interesa todo el historico para saber cuando publico cada ente por
+        // ultima vez.
+        const { data, error } = await supabase
+            .from("convocatorias")
+            .select("municipio, fecha_publicacion")
+            .order("fecha_publicacion", { ascending: false })
+            .limit(10000);
+
+        if (error) {
+            coberturaResumen.textContent = "no se pudo calcular";
+            coberturaResumen.className = "cobertura-resumen";
+            console.error(error);
+            return;
+        }
+
+        renderCobertura(data || []);
+    }
+
+    function renderCobertura(rows) {
+        const porEnte = new Map(
+            MUNICIPIOS.map((m) => [m, { municipio: m, total: 0, recientes: 0, ultima: null }])
+        );
+
+        for (const r of rows) {
+            // Un municipio en la tabla que no este en MUNICIPIOS (renombrado,
+            // ente nuevo) se muestra igual en vez de desaparecer del recuento.
+            if (!porEnte.has(r.municipio)) {
+                porEnte.set(r.municipio, {
+                    municipio: r.municipio,
+                    total: 0,
+                    recientes: 0,
+                    ultima: null,
+                });
+            }
+            const ente = porEnte.get(r.municipio);
+            ente.total += 1;
+            const dias = diasDesde(r.fecha_publicacion);
+            if (dias !== null && dias <= ALERTA_DIAS) ente.recientes += 1;
+            if (r.fecha_publicacion && (!ente.ultima || r.fecha_publicacion > ente.ultima)) {
+                ente.ultima = r.fecha_publicacion;
+            }
+        }
+
+        const entes = [...porEnte.values()].map((e) => {
+            const dias = diasDesde(e.ultima);
+            return { ...e, dias, alerta: dias === null || dias > ALERTA_DIAS };
+        });
+
+        // Lo que peor pinta tiene, primero.
+        entes.sort((a, b) => (b.dias ?? Infinity) - (a.dias ?? Infinity));
+
+        const enAlerta = entes.filter((e) => e.alerta);
+        coberturaResumen.textContent = enAlerta.length
+            ? `${enAlerta.length} de ${entes.length} sin novedades en ${ALERTA_DIAS} días`
+            : `${entes.length} entes al día`;
+        coberturaResumen.className =
+            "cobertura-resumen" + (enAlerta.length ? " cobertura-resumen-alerta" : "");
+
+        coberturaGrid.innerHTML = "";
+        for (const ente of entes) {
+            coberturaGrid.appendChild(renderEnte(ente));
+        }
+    }
+
+    function renderEnte(ente) {
+        const card = document.createElement("div");
+        card.className = "ente-card" + (ente.alerta ? " ente-alerta" : "");
+
+        const nombre = document.createElement("div");
+        nombre.className = "ente-nombre";
+        nombre.textContent = ente.municipio;
+        card.appendChild(nombre);
+
+        const cifra = document.createElement("div");
+        cifra.className = "ente-cifra";
+        cifra.textContent = ente.total;
+        const sufijo = document.createElement("span");
+        sufijo.className = "ente-cifra-sufijo";
+        sufijo.textContent = ente.total === 1 ? "convocatoria" : "convocatorias";
+        cifra.appendChild(sufijo);
+        card.appendChild(cifra);
+
+        const ultima = document.createElement("div");
+        ultima.className = "ente-ultima";
+        if (ente.ultima === null) {
+            ultima.textContent = "Nunca ha publicado nada";
+        } else {
+            const dias = ente.dias;
+            const cuando = dias === 0 ? "hoy" : dias === 1 ? "hace 1 día" : `hace ${dias} días`;
+            ultima.textContent = `Última: ${formatDate(ente.ultima)} · ${cuando}`;
+        }
+        card.appendChild(ultima);
+
+        const recientes = document.createElement("div");
+        recientes.className = "ente-recientes";
+        recientes.textContent = ente.alerta
+            ? `Sin novedades en ${ALERTA_DIAS} días — revisa la fuente`
+            : `${ente.recientes} en los últimos ${ALERTA_DIAS} días`;
+        card.appendChild(recientes);
+
+        return card;
     }
 
     function populateMunicipioFilter(rows) {

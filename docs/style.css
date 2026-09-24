@@ -9,6 +9,9 @@
     --interesa: #059669;
     --descartada: #9ca3af;
     --aplicada: #7c3aed;
+    --alerta: #dc2626;
+    --alerta-bg: #fef2f2;
+    --alerta-borde: #f5c2c2;
 }
 
 * {
@@ -41,6 +44,124 @@ main {
     padding: 16px 32px 48px;
     max-width: 1200px;
     margin: 0 auto;
+}
+
+.cobertura {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+}
+
+.cobertura summary {
+    cursor: pointer;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    list-style: none;
+}
+
+.cobertura summary::-webkit-details-marker {
+    display: none;
+}
+
+/* Triangulo propio, porque el nativo se oculta arriba para poder alinear. */
+.cobertura summary::before {
+    content: "▸";
+    color: var(--muted);
+    font-size: 0.75rem;
+    transition: transform 0.15s;
+}
+
+.cobertura[open] summary::before {
+    transform: rotate(90deg);
+}
+
+.cobertura-titulo {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.cobertura-resumen {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-left: auto;
+}
+
+.cobertura-resumen-alerta {
+    color: var(--alerta);
+    font-weight: 600;
+}
+
+.cobertura-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.ente-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    background: #fbfcfd;
+}
+
+.ente-alerta {
+    border-color: var(--alerta-borde);
+    background: var(--alerta-bg);
+}
+
+.ente-nombre {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.ente-cifra {
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+}
+
+.ente-alerta .ente-cifra {
+    color: var(--alerta);
+}
+
+.ente-cifra-sufijo {
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: var(--muted);
+    margin-left: 6px;
+}
+
+.ente-ultima {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 6px;
+}
+
+.ente-recientes {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 2px;
+}
+
+.ente-alerta .ente-recientes {
+    color: var(--alerta);
+    font-weight: 500;
+}
+
+.cobertura-nota {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin: 12px 0 2px;
+    line-height: 1.5;
 }
 
 .toolbar {
