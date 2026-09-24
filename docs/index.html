@@ -27,6 +27,20 @@
     <button id="logout-btn" class="logout-btn">Cerrar sesión</button>
 </header>
 <main>
+    <details id="cobertura" class="cobertura" open>
+        <summary>
+            <span class="cobertura-titulo">Cobertura por ente</span>
+            <span id="cobertura-resumen" class="cobertura-resumen"></span>
+        </summary>
+        <div id="cobertura-grid" class="cobertura-grid"></div>
+        <p class="cobertura-nota">
+            Cuenta las convocatorias guardadas en la base de datos, sin el filtro de fecha de la
+            tabla de abajo. Un ente se marca en rojo si lleva más de 60 días sin ninguna
+            convocatoria nueva: puede ser normal en municipios pequeños, pero también es la señal
+            de que su fuente ha dejado de funcionar.
+        </p>
+    </details>
+
     <div class="toolbar">
         <div>
             <label for="filtro-municipio">Municipio</label>

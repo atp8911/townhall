@@ -15,18 +15,28 @@ supabase/   schema.sql para crear la tabla y las políticas de RLS
 
 No se filtra por texto/palabras clave en ningún sitio: cada plataforma clasifica sus anuncios con metadatos propios, y el scraper usa esos campos estructurados en vez de adivinar por título.
 
+**Fuente principal — dataset CKAN de la AOC.** Una sola API cubre los 8 entes: el [dataset "Convocatòries de personal"](https://dadesobertes.seu-e.cat) (recurso `0e11c4f5-ce15-401f-b86f-f9d2604b94f6`), que es justo el que alimenta las páginas "Convocatòries de personal" de `seu-e.cat` y enlaza a la ficha de CIDO (Diputació de Barcelona). Se filtra por `CODI_ENS`, da **una fila por convocatoria** (no por trámite) y no depende de qué plataforma de tablón use cada ayuntamiento. Los organismos dependientes comparten el `CODI_ENS` de su ayuntamiento, así que entran solos (Residència Josep Baulida, Escola de Música de Sant Feliu…); el Centre Ocupacional Tramuntana va con `CODI_ENS` vacío y se pide aparte por `NOM_ENS`.
+
+**Fuentes complementarias**, por si CIDO tarda en indexar algo:
+
 | Municipio | Plataforma | Filtro estructurado usado |
 |---|---|---|
 | Sant Feliu de Guíxols | e-Tauler (Consorci AOC) | categoría `Recursos Humans` / `Contractació personal` |
-| Santa Cristina d'Aro | e-Tauler (Consorci AOC) | idem |
 | Castell-Platja d'Aro | e-Tauler (Consorci AOC) | idem |
 | Calonge i Sant Antoni | e-Tauler (Consorci AOC) | idem |
 | Llagostera | e-Tauler (Consorci AOC) | idem |
 | Vidreres | e-Tauler (Consorci AOC) | idem |
 | Consell Comarcal del Baix Empordà | Convoca.online (Savia) | endpoints dedicados `calls` / `bags` / `postProvisions` |
-| Palamós | espublico / eAdministracio.cat | columna "Procediment" = `Seleccions de Personal i Provisions de Llocs de treball` |
+| Palamós | espublico / eAdministracio.cat | columna "Procediment" de RRHH |
+| Santa Cristina d'Aro | espublico / eAdministracio.cat | idem |
 
 La URL que diste de Sant Feliu de Guíxols (`ciutadania.guixols.cat/tauler-edictes`) y la del Baix Empordà (`baixemporda.convoca.online`) son webs "envoltorio": la primera embebe un iframe del e-Tauler oficial, la segunda es un SPA que llama a una API JSON. El scraper llama directamente a esas APIs/fuente real, que son públicas y no requieren autenticación.
+
+### Por qué la fuente principal ya no es e-Tauler
+
+Santa Cristina d'Aro **dejó de publicar en e-Tauler el 25/06/2025** y se pasó a espublico (`santacristina.eadministracio.cat`). El scraper siguió preguntando a e-Tauler, que respondía `0 anuncios` correctamente, y eso era indistinguible de "hoy no hay convocatorias": estuvo 15 meses con un punto ciego sin que fallara nada. En ese tiempo el ayuntamiento publicó al menos plazas de Policia Local, Interventor, Tècnic en comunicació, Dinamitzador Juvenil y una borsa de TEI.
+
+De ahí las dos medidas: el dataset CKAN como fuente principal (no se rompe si un ayuntamiento cambia de plataforma) y el panel **"Cobertura por ente"** del dashboard, que marca en rojo cualquier ente que lleve más de 60 días sin una convocatoria nueva. Ese umbral no significa necesariamente avería —en municipios pequeños 60 días sin nada es normal— pero es la única señal que convierte un punto ciego en algo visible.
 
 ## 1. Crear el proyecto en Supabase
 
